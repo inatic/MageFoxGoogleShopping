@@ -1,17 +1,14 @@
 {
-  "name": "magefox/googleshopping",
+  "name": "quazz/googleshopping",
   "description": "A simple Google Shopping Extension for Magento 2",
-  "homepage": "https://github.com/adampmoss/MageFoxGoogleShopping",
+  "homepage": "https://github.com/Quazz/MageFoxGoogleShopping",
   "require": {
-    "php": "~5.5.0|~5.6.0|~7.0.0",
-    "magento/framework": "~100.0"
+    "php": "~5.5.0|~5.6.0|~7.0.0|~7.1.0|~7.2.0"
   },
   "type": "magento2-module",
-  "version": "1.0.0",
   "authors": [
     {
-      "name": "Adam Moss",
-      "homepage": "http://adammoss.co.uk/"
+      "name": "Quazz"
     }
   ],
   "license": [
