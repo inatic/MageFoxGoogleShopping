@@ -72,7 +72,9 @@ class Xmlfeed
 
         foreach ($productCollection as $product)
         {
-            $xml .= "<item>".$this->buildProductXml($product)."</item>";
+			if (!empty($product->getAttributeText('ean'))) {
+            	$xml .= "<item>".$this->buildProductXml($product)."</item>";
+			}
         }
 
         return $xml;
