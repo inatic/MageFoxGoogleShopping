@@ -80,27 +80,32 @@ class Xmlfeed
 
     public function buildProductXml($product)
     {
-        $_description = $this->fixDescription($product->getDescription());
+        $_description = $this->fixDescription($product->getShortDescription());
         $xml = $this->createNode("title", $product->getName(), true);
         $xml .= $this->createNode("link", $product->getProductUrl());
         $xml .= $this->createNode("description", $_description, true);
-        $xml .= $this->createNode("g:product_type", $this->_productFeedHelper->getAttributeSet($product), true);
+        //$xml .= $this->createNode("g:product_type", $this->_productFeedHelper->getAttributeSet($product), true);
         $xml .= $this->createNode("g:image_link", $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA, true).'catalog/product'.$product->getImage());
         $xml .= $this->createNode('g:google_product_category',
             $this->_productFeedHelper->getProductValue($product, 'google_product_category'), true);
         $xml .= $this->createNode("g:availability", 'in stock');
         $xml .= $this->createNode('g:price', number_format($product->getFinalPrice(),2,'.','').' '.$this->_productFeedHelper->getCurrentCurrencySymbol());
-        if ($product->getSpecialPrice() != $product->getFinalPrice())
+        if (($product->getSpecialPrice() < $product->getFinalPrice()) && !empty($product->getSpecialPrice()))
             $xml .= $this->createNode('g:sale_price', number_format($product->getSpecialPrice(),2,'.','').' '.$this->_productFeedHelper->getCurrentCurrencySymbol());
-        $_condition = $product->getAttributeText('condition');
-        if (is_array($_condition))
+        $_condition = $this->_productFeedHelper->getProductValue($product, 'google_condition');
+        if (is_array($_condition)) {
             $xml .= $this->createNode("g:condition", $_condition[0]);
-        else
-            $xml .= $this->createNode("g:condition", $_condition);
-        $xml .= $this->createNode("g:gtin", $product->getAttributeText('gr_ean'));
+		}
+        else if ($_condition === "Refurbished") {
+            $xml .= $this->createNode("g:condition", "refurbished");
+		}
+		else {
+			$xml .= $this->createNode("g:condition", $this->_helper->getConfig('default_google_condition'));
+		}
+        $xml .= $this->createNode("g:gtin", $product->getAttributeText('ean'));
         $xml .= $this->createNode("g:id", $product->getId());
-        $xml .= $this->createNode("g:brand", $product->getAttributeText('manufacturer'));
-        $xml .= $this->createNode("g:mpn", $product->getSku());
+        $xml .= $this->createNode("g:brand", $product->getAttributeText('brand'));
+        $xml .= $this->createNode("g:mpn", $product->getAttributeText('mpn'));
 
         return $xml;
     }
