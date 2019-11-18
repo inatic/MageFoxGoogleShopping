@@ -48,18 +48,18 @@
                     </depends>
                     <label>Description on Google Description Tag</label>
                 </field>
-				<field id="default_google_condition" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+		    <field id="default_google_condition" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                     <depends>
                         <field id="enable">1</field>
                     </depends>
                     <label>Default value for condition</label>
                 </field>
-				<field id="google_condition_attribute" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+		    <field id="google_condition_attribute" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
                     <depends>
                         <field id="enable">1</field>
                     </depends>
                     <label>Condition attribute code</label>
-					<comment>If empty, default value will be used instead</comment>
+		    <comment>If empty, default value will be used instead</comment>
                 </field>
             </group>
         </section>
