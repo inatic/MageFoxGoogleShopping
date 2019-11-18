@@ -57,9 +57,9 @@ class Products extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $collection = $this->_productCollectionFactory->create();
         // $collection->addAttributeToFilter('status',\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
-		$collection->addAttributeToSelect('*');
+	$collection->addAttributeToSelect(array('*'));
         $collection->addAttributeToFilter('status', ['in' => $this->_productStatus->getVisibleStatusIds()]);
-		$collection->addAttributeToFilter('visibility', ['eq' => $this->_productVisibility::VISIBILITY_BOTH]);
+	$collection->addAttributeToFilter('visibility', ['eq' => $this->_productVisibility::VISIBILITY_BOTH]);
         $collection->setVisibility($this->_productVisibility->getVisibleInSiteIds());
 
         return $collection;
