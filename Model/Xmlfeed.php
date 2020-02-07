@@ -72,11 +72,9 @@ class Xmlfeed
 
         foreach ($productCollection as $product)
         {
-		if (!empty($product->getEan())) {
-			if (is_numeric($product->getEan())) {
-            			$xml .= "<item>".$this->buildProductXml($product)."</item>";
+			if (!empty($product->getData('ean'))) {
+            	$xml .= "<item>".$this->buildProductXml($product)."</item>";
 			}
-		}
         }
 
         return $xml;
@@ -95,21 +93,21 @@ class Xmlfeed
         $xml .= $this->createNode("g:availability", 'in stock');
         $xml .= $this->createNode('g:price', number_format($product->getFinalPrice(),2,'.','').' '.$this->_productFeedHelper->getCurrentCurrencySymbol());
         if (($product->getSpecialPrice() < $product->getFinalPrice()) && !empty($product->getSpecialPrice()))
-        	$xml .= $this->createNode('g:sale_price', number_format($product->getSpecialPrice(),2,'.','').' '.$this->_productFeedHelper->getCurrentCurrencySymbol());
+            $xml .= $this->createNode('g:sale_price', number_format($product->getSpecialPrice(),2,'.','').' '.$this->_productFeedHelper->getCurrentCurrencySymbol());
         $_condition = $this->_productFeedHelper->getProductValue($product, 'google_condition');
         if (is_array($_condition)) {
-        	$xml .= $this->createNode("g:condition", $_condition[0]);
-	}
+            $xml .= $this->createNode("g:condition", $_condition[0]);
+		}
         else if ($_condition === "Refurbished") {
-        	$xml .= $this->createNode("g:condition", "refurbished");
-	}
-	else {
-		$xml .= $this->createNode("g:condition", $this->_helper->getConfig('default_google_condition'));
-	}
-        $xml .= $this->createNode("g:gtin", $product->getEan());
+            $xml .= $this->createNode("g:condition", "refurbished");
+		}
+		else {
+			$xml .= $this->createNode("g:condition", $this->_helper->getConfig('default_google_condition'));
+		}
+        $xml .= $this->createNode("g:gtin", $product->getData('ean'));
         $xml .= $this->createNode("g:id", $product->getId());
         $xml .= $this->createNode("g:brand", $product->getAttributeText('brand'));
-        $xml .= $this->createNode("g:mpn", $product->getMpn());
+        $xml .= $this->createNode("g:mpn", $product->getData('mpn'));
 
         return $xml;
     }
