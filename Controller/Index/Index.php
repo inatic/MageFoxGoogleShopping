@@ -2,7 +2,12 @@
 
 namespace Magefox\GoogleShopping\Controller\Index;
 
-class Index extends \Magento\Framework\App\Action\Action
+use Magefox\GoogleShopping\Model\Xmlfeed;
+use Magento\Framework\App\ActionInterface;
+use Magefox\GoogleShopping\Helper\Data;
+use Magento\Framework\Controller\Result\ForwardFactory;
+
+class Index implements ActionInterface
 {
     /**
      * XmlFeed Model
@@ -26,15 +31,13 @@ class Index extends \Magento\Framework\App\Action\Action
     private $resultForward;
 
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magefox\GoogleShopping\Model\Xmlfeed $xmlFeed,
-        \Magefox\GoogleShopping\Helper\Data $helper,
-        \Magento\Framework\Controller\Result\ForwardFactory $resultForwardFactory
+        Xmlfeed $xmlFeed,
+        Data $helper,
+        ForwardFactory $resultForwardFactory
     ) {
         $this->xmlFeed = $xmlFeed;
         $this->helper = $helper;
         $this->resultForwardFactory = $resultForwardFactory;
-        parent::__construct($context);
     }
 
     public function execute()
