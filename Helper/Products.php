@@ -2,7 +2,16 @@
 
 namespace Magefox\GoogleShopping\Helper;
 
-class Products extends \Magento\Framework\App\Helper\AbstractHelper
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
+use Magento\Eav\Model\AttributeSetRepository;
+use Magefox\GoogleShopping\Helper\Data;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Catalog\Model\Product\Attribute\Source\Status;
+use Magento\Catalog\Model\Product\Visibility;
+
+class Products extends AbstractHelper
 {
     /**
      * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory
@@ -20,30 +29,29 @@ class Products extends \Magento\Framework\App\Helper\AbstractHelper
     protected $_helper;
 
     /**
-    * @var \Magento\Store\Model\StoreManagerInterface
-    */
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
     public $_storeManager;
 
     /**
-    * @var \Magento\Catalog\Model\Product\Attribute\Source\Status
-    */
+     * @var \Magento\Catalog\Model\Product\Attribute\Source\Status
+     */
     public $_productStatus;
 
     /**
-    * @var \Magento\Catalog\Model\Product\Visibility
-    */
+     * @var \Magento\Catalog\Model\Product\Visibility
+     */
     public $_productVisibility;
 
     public function __construct(
-        \Magento\Framework\App\Helper\Context $context,
-        \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory,
-        \Magento\Eav\Model\AttributeSetRepository $attributeSetRepo,
-        \Magefox\GoogleShopping\Helper\Data $helper,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Catalog\Model\Product\Attribute\Source\Status $productStatus,
-        \Magento\Catalog\Model\Product\Visibility $productVisibility
-    )
-    {
+        Context $context,
+        CollectionFactory $productCollectionFactory,
+        AttributeSetRepository $attributeSetRepo,
+        Data $helper,
+        StoreManagerInterface $storeManager,
+        Status $productStatus,
+        Visibility $productVisibility
+    ) {
         $this->_productCollectionFactory = $productCollectionFactory;
         $this->_attributeSetRepo = $attributeSetRepo;
         $this->_helper = $helper;
@@ -57,9 +65,9 @@ class Products extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $collection = $this->_productCollectionFactory->create();
         // $collection->addAttributeToFilter('status',\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
-	$collection->addAttributeToSelect(array('*'));
+        $collection->addAttributeToSelect('*');
         $collection->addAttributeToFilter('status', ['in' => $this->_productStatus->getVisibleStatusIds()]);
-	$collection->addAttributeToFilter('visibility', ['eq' => $this->_productVisibility::VISIBILITY_BOTH]);
+        $collection->addAttributeToFilter('visibility', ['eq' => $this->_productVisibility::VISIBILITY_BOTH]);
         $collection->setVisibility($this->_productVisibility->getVisibleInSiteIds());
 
         return $collection;
@@ -71,7 +79,6 @@ class Products extends \Magento\Framework\App\Helper\AbstractHelper
         $attributeSet = $this->_attributeSetRepo->get($attributeSetId);
 
         return $attributeSet->getAttributeSetName();
-
     }
 
     public function getProductValue($product, $attributeCode)
@@ -79,13 +86,11 @@ class Products extends \Magento\Framework\App\Helper\AbstractHelper
         $attributeCodeFromConfig = $this->_helper->getConfig($attributeCode.'_attribute');
         $defaultValue = $this->_helper->getConfig('default_'.$attributeCode);
 
-        if (!empty($attributeCodeFromConfig))
-        {
+        if (!empty($attributeCodeFromConfig)) {
             return $product->getAttributeText($attributeCodeFromConfig);
         }
 
-        if (!empty($defaultValue))
-        {
+        if (!empty($defaultValue)) {
             return $defaultValue;
         }
 
