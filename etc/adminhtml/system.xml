@@ -1,7 +1,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
-        <tab id="magefox" translate="label" sortOrder="200">
-            <label>Magento Fox</label>
+        <tab id="axitech" translate="label" sortOrder="1">
+            <label>Axitech</label>
         </tab>
         <section id="magefoxgoogleshopping" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1"
                  showInStore="1">
