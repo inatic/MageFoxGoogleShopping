@@ -6,7 +6,7 @@
         <section id="magefoxgoogleshopping" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1"
                  showInStore="1">
             <label>Google Shopping</label>
-            <tab>magefox</tab>
+            <tab>axitech</tab>
             <resource>Magefox_GoogleShopping::settings</resource>
             <group id="settings" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1"
                    showInStore="1">
