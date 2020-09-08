@@ -2,7 +2,9 @@
 
 namespace Magefox\GoogleShopping\Helper;
 
-class Data extends \Magento\Framework\App\Helper\AbstractHelper
+use Magento\Framework\App\Helper\AbstractHelper;
+
+class Data extends AbstractHelper
 {
     const GS_CONFIG_PATH = 'magefoxgoogleshopping/settings/';
 
