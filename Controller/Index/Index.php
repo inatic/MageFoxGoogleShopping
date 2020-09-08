@@ -36,13 +36,14 @@ class Index extends \Magento\Framework\App\Action\Action
         $this->resultForwardFactory = $resultForwardFactory;
         parent::__construct($context);
     }
-    
+
     public function execute()
     {
         $resultForward = $this->resultForwardFactory->create();
 
         if (!empty($this->helper->getConfig('enabled'))) {
-            echo $this->xmlFeed->getFeed();
+            //phpcs:ignore
+            echo $this->xmlFeed->getFeedFile();
         } else {
             $resultForward->forward('noroute');
         }
