@@ -90,7 +90,7 @@ class Xmlfeed
         $xml = "";
 
         foreach ($productCollection as $product) {
-            if (!empty($product->getData('ean'))) {
+            if (!empty($product->getData('ean')) && $product->getImage()!=="no_selection") {
                 $xml .= "<item>".$this->buildProductXml($product)."</item>";
             }
         }
@@ -114,7 +114,7 @@ class Xmlfeed
             $this->_storeManager->getStore()->getBaseUrl(
                 \Magento\Framework\UrlInterface::URL_TYPE_MEDIA,
                 true
-            ).'catalog/product'.$product->getImage()
+            ) . 'catalog/product' . $product->getImage()
         );
         $xml .= $this->createNode(
             'g:google_product_category',
