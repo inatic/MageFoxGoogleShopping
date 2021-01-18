@@ -16,32 +16,32 @@ class Products extends AbstractHelper
     /**
      * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory
      */
-    protected $_productCollectionFactory;
+    protected $productCollectionFactory;
 
     /**
      * @var \Magento\Eav\ModelAttributeSetRepository
      */
-    protected $_attributeSetRepo;
+    protected $attributeSetRepo;
 
     /**
      * @var \Magefox\GoogleShopping\Helper\Data
      */
-    protected $_helper;
+    protected $helper;
 
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
      */
-    public $_storeManager;
+    public $storeManager;
 
     /**
      * @var \Magento\Catalog\Model\Product\Attribute\Source\Status
      */
-    public $_productStatus;
+    public $productStatus;
 
     /**
      * @var \Magento\Catalog\Model\Product\Visibility
      */
-    public $_productVisibility;
+    public $productVisibility;
 
     public function __construct(
         Context $context,
@@ -52,23 +52,23 @@ class Products extends AbstractHelper
         Status $productStatus,
         Visibility $productVisibility
     ) {
-        $this->_productCollectionFactory = $productCollectionFactory;
-        $this->_attributeSetRepo = $attributeSetRepo;
-        $this->_helper = $helper;
-        $this->_storeManager = $storeManager;
-        $this->_productStatus = $productStatus;
-        $this->_productVisibility = $productVisibility;
+        $this->productCollectionFactory = $productCollectionFactory;
+        $this->attributeSetRepo = $attributeSetRepo;
+        $this->helper = $helper;
+        $this->storeManager = $storeManager;
+        $this->productStatus = $productStatus;
+        $this->productVisibility = $productVisibility;
         parent::__construct($context);
     }
 
     public function getFilteredProducts()
     {
-        $collection = $this->_productCollectionFactory->create();
+        $collection = $this->productCollectionFactory->create();
         // $collection->addAttributeToFilter('status',\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
         $collection->addAttributeToSelect('*');
-        $collection->addAttributeToFilter('status', ['in' => $this->_productStatus->getVisibleStatusIds()]);
-        $collection->addAttributeToFilter('visibility', ['eq' => $this->_productVisibility::VISIBILITY_BOTH]);
-        $collection->setVisibility($this->_productVisibility->getVisibleInSiteIds());
+        $collection->addAttributeToFilter('status', ['in' => $this->productStatus->getVisibleStatusIds()]);
+        $collection->addAttributeToFilter('visibility', ['eq' => $this->productVisibility::VISIBILITY_BOTH]);
+        $collection->setVisibility($this->productVisibility->getVisibleInSiteIds());
 
         return $collection;
     }
@@ -76,15 +76,13 @@ class Products extends AbstractHelper
     public function getAttributeSet($product)
     {
         $attributeSetId = $product->getAttributeSetId();
-        $attributeSet = $this->_attributeSetRepo->get($attributeSetId);
-
-        return $attributeSet->getAttributeSetName();
+        return $this->attributeSetRepo->get($attributeSetId)->getAttributeSetName();
     }
 
     public function getProductValue($product, $attributeCode)
     {
-        $attributeCodeFromConfig = $this->_helper->getConfig($attributeCode.'_attribute');
-        $defaultValue = $this->_helper->getConfig('default_'.$attributeCode);
+        $attributeCodeFromConfig = $this->helper->getConfig($attributeCode.'_attribute');
+        $defaultValue = $this->helper->getConfig('default_'.$attributeCode);
 
         if (!empty($attributeCodeFromConfig)) {
             return $product->getAttributeText($attributeCodeFromConfig);
@@ -99,6 +97,6 @@ class Products extends AbstractHelper
 
     public function getCurrentCurrencySymbol()
     {
-        return $this->_storeManager->getStore()->getCurrentCurrencyCode();
+        return $this->storeManager->getStore()->getCurrentCurrencyCode();
     }
 }
