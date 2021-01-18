@@ -6,7 +6,6 @@ use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory;
 use Magefox\GoogleShopping\Helper\Data;
 use Magefox\GoogleShopping\Helper\Products;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\App\Filesystem\DirectoryList;
 
 class Xmlfeed
 {
@@ -15,33 +14,31 @@ class Xmlfeed
      *
      * @var \Magefox\GoogleShopping\Helper\Data
      */
-    private $_helper;
+    private $helper;
 
     /**
      * Product Helper
      *
      * @var \Magefox\GoogleShopping\Helper\Products
      */
-    private $_productFeedHelper;
+    private $productFeedHelper;
 
     /**
      * Store Manager
      *
-     * @var \Magefox\GoogleShopping\Helper\Products
+     * @var \Magento\Store\Model\StoreManagerInterface
      */
-    private $_storeManager;
+    private $storeManager;
 
     public function __construct(
         Data $helper,
         Products $productFeedHelper,
         StoreManagerInterface $storeManager,
-        DirectoryList $directoryList,
         CollectionFactory $categoryCollection
     ) {
-        $this->_helper = $helper;
-        $this->_productFeedHelper = $productFeedHelper;
-        $this->_storeManager = $storeManager;
-        $this->directoryList = $directoryList;
+        $this->helper = $helper;
+        $this->productFeedHelper = $productFeedHelper;
+        $this->storeManager = $storeManager;
         $this->categoryCollection = $categoryCollection;
     }
 
@@ -56,25 +53,20 @@ class Xmlfeed
 
     public function getFeedFile()
     {
-        $pubDir = $this->directoryList->getPath(\Magento\Framework\App\Filesystem\DirectoryList::PUB);
-
         $fileName = "googleshopping.xml";
-        //phpcs:ignore
-        $fileData = file_get_contents($fileName);
 
-        return $fileData;
+        return file_get_contents($fileName); //phpcs:ignore
     }
 
     public function getXmlHeader()
     {
-        //phpcs:ignore
-        header("Content-Type: application/xml; charset=utf-8");
+        header("Content-Type: application/xml; charset=utf-8"); //phpcs:ignore
 
         $xml =  '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">';
         $xml .= '<channel>';
-        $xml .= '<title>'.$this->_helper->getConfig('google_default_title').'</title>';
-        $xml .= '<link>'.$this->_helper->getConfig('google_default_url').'</link>';
-        $xml .= '<description>'.$this->_helper->getConfig('google_default_description').'</description>';
+        $xml .= '<title>'.$this->helper->getConfig('google_default_title').'</title>';
+        $xml .= '<link>'.$this->helper->getConfig('google_default_url').'</link>';
+        $xml .= '<description>'.$this->helper->getConfig('google_default_description').'</description>';
 
         return $xml;
     }
@@ -86,11 +78,13 @@ class Xmlfeed
 
     public function getProductsXml()
     {
-        $productCollection = $this->_productFeedHelper->getFilteredProducts();
+        $productCollection = $this->productFeedHelper->getFilteredProducts();
         $xml = "";
 
         foreach ($productCollection as $product) {
-            if (!empty($product->getData('ean')) && $product->getImage()!=="no_selection") {
+            if (!empty($product->getData('ean'))
+            && $product->getImage()!=="no_selection"
+            && $product->getImage()!=="") {
                 $xml .= "<item>".$this->buildProductXml($product)."</item>";
             }
         }
@@ -108,17 +102,17 @@ class Xmlfeed
             $product->setStoreId($storeId)->getUrlModel()->getUrlInStore($product, ['_escape' => true])
         );
         $xml .= $this->createNode("description", $_description, true);
-        //$xml .= $this->createNode("g:product_type", $this->_productFeedHelper->getAttributeSet($product), true);
+        //$xml .= $this->createNode("g:product_type", $this->productFeedHelper->getAttributeSet($product), true);
         $xml .= $this->createNode(
             "g:image_link",
-            $this->_storeManager->getStore()->getBaseUrl(
+            $this->storeManager->getStore()->getBaseUrl(
                 \Magento\Framework\UrlInterface::URL_TYPE_MEDIA,
                 true
             ) . 'catalog/product' . $product->getImage()
         );
         $xml .= $this->createNode(
             'g:google_product_category',
-            $this->_productFeedHelper->getProductValue($product, 'google_product_category'),
+            $this->productFeedHelper->getProductValue($product, 'google_product_category'),
             true
         );
         $xml .= $this->createNode("g:availability", 'in stock');
@@ -129,7 +123,7 @@ class Xmlfeed
                 2,
                 '.',
                 ''
-            ).' '.$this->_productFeedHelper->getCurrentCurrencySymbol()
+            ).' '.$this->productFeedHelper->getCurrentCurrencySymbol()
         );
         if (($product->getSpecialPrice() < $product->getFinalPrice()) && !empty($product->getSpecialPrice())) {
             $xml .= $this->createNode(
@@ -139,16 +133,16 @@ class Xmlfeed
                     2,
                     '.',
                     ''
-                ).' '.$this->_productFeedHelper->getCurrentCurrencySymbol()
+                ).' '.$this->productFeedHelper->getCurrentCurrencySymbol()
             );
         }
-        $_condition = $this->_productFeedHelper->getProductValue($product, 'google_condition');
+        $_condition = $this->productFeedHelper->getProductValue($product, 'google_condition');
         if (is_array($_condition)) {
             $xml .= $this->createNode("g:condition", $_condition[0]);
         } elseif ($_condition === "Refurbished") {
             $xml .= $this->createNode("g:condition", "refurbished");
         } else {
-            $xml .= $this->createNode("g:condition", $this->_helper->getConfig('default_google_condition'));
+            $xml .= $this->createNode("g:condition", $this->helper->getConfig('default_google_condition'));
         }
         $xml .= $this->createNode("g:gtin", $product->getData('ean'));
         $xml .= $this->createNode("g:id", $product->getId());
@@ -163,9 +157,7 @@ class Xmlfeed
     {
         $description = $data;
         $encode = mb_detect_encoding($data);
-        $description = mb_convert_encoding($description, 'UTF-8', $encode);
-
-        return $description;
+        return mb_convert_encoding($description, 'UTF-8', $encode);
     }
 
     public function createNode($nodeName, $value, $cData = false)
@@ -182,15 +174,13 @@ class Xmlfeed
             $cDataEnd = "]]>";
         }
 
-        $node = "<".$nodeName.">".$cDataStart.$value.$cDataEnd."</".$nodeName.">";
-
-        return $node;
+        return "<".$nodeName.">".$cDataStart.$value.$cDataEnd."</".$nodeName.">";
     }
 
     public function getFilteredCollection($categoryIds)
     {
         $collection = $this->categoryCollection->create();
-        $filtered_colection = $collection
+        return $collection
             ->addFieldToSelect('*')
             ->addFieldToFilter(
                 'entity_id',
@@ -198,7 +188,6 @@ class Xmlfeed
             )
             ->setOrder('level', 'ASC')
             ->load();
-        return $filtered_colection;
     }
 
     private function getProductCategories($product)
@@ -209,7 +198,7 @@ class Xmlfeed
         $i = 0;
         foreach ($categoryCollection as $category) {
             $i++;
-            if ($i != $categoryCollection->getSize()) {
+            if ($i !== (int) $categoryCollection->getSize()) {
                 $fullcategory .= $category->getData('name') . ' > ';
             } else {
                 $fullcategory .= $category->getData('name');
