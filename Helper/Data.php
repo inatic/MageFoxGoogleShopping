@@ -6,7 +6,7 @@ use Magento\Framework\App\Helper\AbstractHelper;
 
 class Data extends AbstractHelper
 {
-    const GS_CONFIG_PATH = 'magefoxgoogleshopping/settings/';
+    private const GS_CONFIG_PATH = 'magefoxgoogleshopping/settings/';
 
     public function getConfig($configNode)
     {
