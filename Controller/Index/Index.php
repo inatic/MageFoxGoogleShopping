@@ -3,9 +3,9 @@
 namespace Magefox\GoogleShopping\Controller\Index;
 
 use Magefox\GoogleShopping\Model\Xmlfeed;
-use Magento\Framework\App\ActionInterface;
 use Magefox\GoogleShopping\Helper\Data;
 use Magento\Framework\Controller\Result\ForwardFactory;
+use Magento\Framework\App\ActionInterface;
 
 class Index implements ActionInterface
 {
@@ -26,7 +26,7 @@ class Index implements ActionInterface
     /**
      * Result Forward Factory
      *
-     * @var \Magefox\GoogleShopping\Helper\Data
+     * @var \Magento\Framework\Controller\Result\ForwardFactory
      */
     private $resultForward;
 
@@ -40,13 +40,12 @@ class Index implements ActionInterface
         $this->resultForwardFactory = $resultForwardFactory;
     }
 
-    public function execute()
+    public function execute(): void
     {
         $resultForward = $this->resultForwardFactory->create();
 
         if (!empty($this->helper->getConfig('enabled'))) {
-            //phpcs:ignore
-            echo $this->xmlFeed->getFeedFile();
+            echo $this->xmlFeed->getFeedFile(); //phpcs:ignore
         } else {
             $resultForward->forward('noroute');
         }
