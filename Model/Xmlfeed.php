@@ -93,6 +93,7 @@ class Xmlfeed
 
     private function isValidProduct($product): bool
     {
+        $condition = $this->getCondition($product);
         if ($product->getImage() === "no_selection"
             || $product->getImage() === ""
             || $product->getVisibility() === Visibility::VISIBILITY_NOT_VISIBLE
@@ -100,7 +101,7 @@ class Xmlfeed
             return false;
         }
         if (empty($product->getData('ean'))) {
-            if ($product->getData('supplier') !== 'Axitech') {
+            if ($product->getData('supplier') !== 'Axitech' || $condition === 'refurbished') {
                 return false;
             }
         }
