@@ -42,7 +42,7 @@ class Xmlfeed
         $this->categoryCollection = $categoryCollection;
     }
 
-    public function getFeed()
+    public function getFeed(): string
     {
         $xml = $this->getXmlHeader();
         $xml .= $this->getProductsXml();
@@ -51,14 +51,14 @@ class Xmlfeed
         return $xml;
     }
 
-    public function getFeedFile()
+    public function getFeedFile(): string
     {
         $fileName = "googleshopping.xml";
 
         return file_get_contents($fileName); //phpcs:ignore
     }
 
-    public function getXmlHeader()
+    public function getXmlHeader(): string
     {
         header("Content-Type: application/xml; charset=utf-8"); //phpcs:ignore
 
@@ -71,20 +71,18 @@ class Xmlfeed
         return $xml;
     }
 
-    public function getXmlFooter()
+    public function getXmlFooter(): string
     {
         return  '</channel></rss>';
     }
 
-    public function getProductsXml()
+    public function getProductsXml(): string
     {
         $productCollection = $this->productFeedHelper->getFilteredProducts();
         $xml = "";
 
         foreach ($productCollection as $product) {
-            if (!empty($product->getData('ean'))
-            && $product->getImage()!=="no_selection"
-            && $product->getImage()!=="") {
+            if ($this->isValidProduct($product)) {
                 $xml .= "<item>".$this->buildProductXml($product)."</item>";
             }
         }
@@ -92,7 +90,21 @@ class Xmlfeed
         return $xml;
     }
 
-    public function buildProductXml($product)
+    private function isValidProduct($product): bool
+    {
+        if ($product->getImage() === "no_selection" || $product->getImage() === "") {
+            return false;
+        }
+        if (empty($product->getData('ean'))) {
+            if ($product->getData('supplier') !== 'Axitech') {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function buildProductXml($product): string
     {
         $storeId = 21;
         $_description = $this->fixDescription($product->getShortDescription());
@@ -115,7 +127,7 @@ class Xmlfeed
             $this->productFeedHelper->getProductValue($product, 'google_product_category'),
             true
         );
-        $xml .= $this->createNode("g:availability", 'in stock');
+        $xml .= $this->createNode("g:availability", $this->isInStock($product));
         $xml .= $this->createNode(
             'g:price',
             number_format(
@@ -136,31 +148,52 @@ class Xmlfeed
                 ).' '.$this->productFeedHelper->getCurrentCurrencySymbol()
             );
         }
-        $_condition = $this->productFeedHelper->getProductValue($product, 'google_condition');
-        if (is_array($_condition)) {
-            $xml .= $this->createNode("g:condition", $_condition[0]);
-        } elseif ($_condition === "Refurbished") {
-            $xml .= $this->createNode("g:condition", "refurbished");
+        $xml .= $this->createNode("g:condition", $this->getCondition($product));
+        //Unique identifier Logic
+        //EAN and MPN are both unique identifiers, but only check EAN since MPN always exists
+        if (!empty($product->getData('ean'))) {
+            $xml .= $this->createNode("g:gtin", $product->getData('ean'));
+            $xml .= $this->createNode("g:mpn", $product->getData('mpn'));
         } else {
-            $xml .= $this->createNode("g:condition", $this->helper->getConfig('default_google_condition'));
+            $xml .= $this->createNode("g:identifier_exists", 'false');
         }
-        $xml .= $this->createNode("g:gtin", $product->getData('ean'));
+
         $xml .= $this->createNode("g:id", $product->getId());
         $xml .= $this->createNode("g:brand", $product->getAttributeText('brand'));
-        $xml .= $this->createNode("g:mpn", $product->getData('mpn'));
         $xml .= $this->createNode("g:product_type", $this->getProductCategories($product), true);
 
         return $xml;
     }
 
-    public function fixDescription($data)
+    private function isInStock($product): string
+    {
+        if ($product->isSaleable()) {
+            return 'in stock';
+        }
+        return 'out of stock';
+    }
+
+    private function getCondition($product)
+    {
+        $_condition = $this->productFeedHelper->getProductValue($product, 'google_condition');
+        if (is_array($_condition)) {
+            $condition = $_condition[0];
+        } elseif ($_condition === "Refurbished") {
+            $condition = "refurbished";
+        } else {
+            $condition = $this->helper->getConfig('default_google_condition');
+        }
+        return $condition;
+    }
+
+    public function fixDescription($data): string
     {
         $description = $data;
         $encode = mb_detect_encoding($data);
         return mb_convert_encoding($description, 'UTF-8', $encode);
     }
 
-    public function createNode($nodeName, $value, $cData = false)
+    public function createNode(string $nodeName, string $value, bool $cData = false): string
     {
         if (empty($value) || empty($nodeName)) {
             return false;
@@ -177,7 +210,7 @@ class Xmlfeed
         return "<".$nodeName.">".$cDataStart.$value.$cDataEnd."</".$nodeName.">";
     }
 
-    public function getFilteredCollection($categoryIds)
+    public function getFilteredCollection(array $categoryIds)
     {
         $collection = $this->categoryCollection->create();
         return $collection
@@ -190,7 +223,7 @@ class Xmlfeed
             ->load();
     }
 
-    private function getProductCategories($product)
+    private function getProductCategories($product): string
     {
         $categoryIds = $product->getCategoryIds();
         $categoryCollection = $this->getFilteredCollection($categoryIds);
