@@ -6,6 +6,7 @@ use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory;
 use Magefox\GoogleShopping\Helper\Data;
 use Magefox\GoogleShopping\Helper\Products;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Catalog\Model\Product\Visibility;
 
 class Xmlfeed
 {
@@ -92,7 +93,10 @@ class Xmlfeed
 
     private function isValidProduct($product): bool
     {
-        if ($product->getImage() === "no_selection" || $product->getImage() === "") {
+        if ($product->getImage() === "no_selection"
+            || $product->getImage() === ""
+            || $product->getVisibility() === Visibility::VISIBILITY_NOT_VISIBLE
+        ) {
             return false;
         }
         if (empty($product->getData('ean'))) {
