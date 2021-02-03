@@ -67,7 +67,8 @@ class Products extends AbstractHelper
         // $collection->addAttributeToFilter('status',\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
         $collection->addAttributeToSelect('*');
         $collection->addAttributeToFilter('status', ['in' => $this->productStatus->getVisibleStatusIds()]);
-        $collection->addAttributeToFilter('visibility', ['eq' => $this->productVisibility::VISIBILITY_BOTH]);
+        $collection->addAttributeToFilter('visibility', ['eq' => Visibility::VISIBILITY_BOTH]);
+        $collection->addStoreFilter(21);
         $collection->setVisibility($this->productVisibility->getVisibleInSiteIds());
 
         return $collection;
