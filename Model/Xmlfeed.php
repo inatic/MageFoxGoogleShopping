@@ -160,6 +160,8 @@ class Xmlfeed
         if (!empty($product->getData('ean'))) {
             $xml .= $this->createNode("g:gtin", $product->getData('ean'));
             $xml .= $this->createNode("g:mpn", $product->getData('mpn'));
+        } elseif ($this->getCondition($product) === 'refurbished') {
+            $xml .= $this->createNode("g:mpn", $product->getData('mpn'));
         } else {
             $xml .= $this->createNode("g:identifier_exists", 'false');
         }
