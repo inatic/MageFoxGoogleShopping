@@ -96,6 +96,7 @@ class Xmlfeed
         $condition = $this->getCondition($product);
         if ($product->getImage() === "no_selection"
             || $product->getImage() === ""
+            || $product->getImage() === null
             || $product->getVisibility() === Visibility::VISIBILITY_NOT_VISIBLE
         ) {
             return false;
