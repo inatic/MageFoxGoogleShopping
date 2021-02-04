@@ -137,20 +137,22 @@ class Xmlfeed
             true
         );
         $xml .= $this->createNode("g:availability", $this->isInStock($product));
+        $regularPrice = $product->getPriceInfo()->getPrice('regular_price')->getValue();
+        $specialPrice = $product->getPriceInfo()->getPrice('special_price')->getValue();
         $xml .= $this->createNode(
             'g:price',
             number_format(
-                $product->getFinalPrice(),
+                $regularPrice,
                 2,
                 '.',
                 ''
             ).' '.$this->productFeedHelper->getCurrentCurrencySymbol()
         );
-        if (($product->getSpecialPrice() < $product->getFinalPrice()) && !empty($product->getSpecialPrice())) {
+        if (($specialPrice < $regularPrice) && !empty($specialPrice)) {
             $xml .= $this->createNode(
                 'g:sale_price',
                 number_format(
-                    $product->getSpecialPrice(),
+                    $specialPrice,
                     2,
                     '.',
                     ''
