@@ -102,7 +102,10 @@ class Xmlfeed
             return false;
         }
         if (empty($product->getData('ean'))) {
-            if ($product->getData('supplier') !== 'Axitech' || $condition === 'refurbished') {
+            if ($product->getData('supplier') !== 'Axitech'
+                || $condition === 'refurbished'
+                || $product->getAttributeText('refurbishedrating') !== null
+            ) {
                 return false;
             }
         }
