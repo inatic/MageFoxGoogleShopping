@@ -68,6 +68,7 @@ class Products extends AbstractHelper
         $collection->addAttributeToSelect('*');
         $collection->addAttributeToFilter('status', ['in' => $this->productStatus->getVisibleStatusIds()]);
         $collection->addAttributeToFilter('visibility', ['eq' => Visibility::VISIBILITY_BOTH]);
+        $collection->addAttributeToFilter('price', ['gt' => 10]);
         $collection->addStoreFilter(21);
         $collection->setVisibility($this->productVisibility->getVisibleInSiteIds());
 
