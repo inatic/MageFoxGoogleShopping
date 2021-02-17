@@ -109,6 +109,10 @@ class Xmlfeed
                 return false;
             }
         }
+        if ($product->getPriceInfo()->getPrice('regular_price')->getValue() < 10
+            && $product->getAttributeSetId() != '26') {
+            return false;
+        }
 
         return true;
     }
