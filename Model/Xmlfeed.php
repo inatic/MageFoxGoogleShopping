@@ -31,6 +31,13 @@ class Xmlfeed
      */
     private $storeManager;
 
+    /**
+     * Category Collection
+     *
+     * @var \Magento\Catalog\Model\ResourceModel\Category\Collection
+     */
+    private $categoryCollection;
+
     public function __construct(
         Data $helper,
         Products $productFeedHelper,
@@ -94,10 +101,14 @@ class Xmlfeed
     private function isValidProduct($product): bool
     {
         $condition = $this->getCondition($product);
+        if ($product->getAttributeSetId() == '26') {
+            return true;
+        }
         if ($product->getImage() === "no_selection"
             || $product->getImage() === ""
             || $product->getImage() === null
             || $product->getVisibility() === Visibility::VISIBILITY_NOT_VISIBLE
+            || $product->getPriceInfo()->getPrice('regular_price')->getValue() < 10
         ) {
             return false;
         }
@@ -108,10 +119,6 @@ class Xmlfeed
             ) {
                 return false;
             }
-        }
-        if ($product->getPriceInfo()->getPrice('regular_price')->getValue() < 10
-            && $product->getAttributeSetId() != '26') {
-            return false;
         }
 
         return true;
@@ -177,7 +184,9 @@ class Xmlfeed
 
         $xml .= $this->createNode("g:id", $product->getId());
         $xml .= $this->createNode("g:brand", $product->getAttributeText('brand'));
+        $xml .= $this->createNode("g:color", $product->getAttributeText('color'));
         $xml .= $this->createNode("g:product_type", $this->getProductCategories($product), true);
+        $xml .= $this->createNode("g:custom_label_0", $this->getProductCategories($product), true);
 
         return $xml;
     }
