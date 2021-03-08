@@ -184,7 +184,7 @@ class Xmlfeed
 
         $xml .= $this->createNode("g:id", $product->getId());
         $xml .= $this->createNode("g:brand", $product->getAttributeText('brand'));
-        $xml .= $this->createNode("g:color", $product->getAttributeText('color'));
+        $xml .= $this->createNode("g:color", ucfirst($product->getAttributeText('color')));
         $xml .= $this->createNode("g:product_type", $this->getProductCategories($product), true);
         $xml .= $this->createNode("g:custom_label_0", $this->getProductCategories($product), true);
 
