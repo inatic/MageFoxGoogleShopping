@@ -128,7 +128,7 @@ class Xmlfeed
     {
         $storeId = 21;
         $_description = $this->fixDescription($product->getShortDescription());
-        $xml = $this->createNode("title", $product->getName(), true);
+        $xml = $this->createNode("title", $_description, true);
         $xml .= $this->createNode(
             "link",
             $product->setStoreId($storeId)->getUrlModel()->getUrlInStore($product, ['_escape' => true])
