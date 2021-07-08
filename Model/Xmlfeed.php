@@ -105,18 +105,19 @@ class Xmlfeed
             return true;
         }
         if ($product->getImage() === "no_selection"
-            || $product->getImage() === ""
-            || $product->getImage() === null
+            || (string) $product->getImage() === ""
             || $product->getVisibility() === Visibility::VISIBILITY_NOT_VISIBLE
             || $product->getPriceInfo()->getPrice('regular_price')->getValue() < 10
         ) {
             return false;
         }
         if (empty($product->getData('ean'))) {
-            if ($product->getData('supplier') !== 'Axitech'
+            if ($product->getData('supplier') === 'Axitech'
                 || $condition === 'refurbished'
-                || $product->getAttributeText('refurbishedrating') !== null
+                || (string) $product->getAttributeText('refurbishedrating') !== ""
             ) {
+                return true;
+            } else {
                 return false;
             }
         }
@@ -193,10 +194,11 @@ class Xmlfeed
 
     private function isInStock($product): string
     {
+        $inStock = 'out of stock';
         if ($product->isSaleable()) {
-            return 'in stock';
+            $inStock = 'in stock';
         }
-        return 'out of stock';
+        return $inStock;
     }
 
     private function getCondition($product)
