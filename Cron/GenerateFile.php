@@ -33,7 +33,9 @@ class GenerateFile
             $xmldata = $this->xmlFeed->getFeed();
             if (strlen($xmldata) > 500) {
                 $fileDirectoryPath->writeFile($fileName, $xmldata);
-            }            
+            } else {
+                $this->logger->error('Google Shopping XML Data not generated correctly');
+            }
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage());
         }
