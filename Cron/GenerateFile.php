@@ -27,12 +27,13 @@ class GenerateFile
     */
     public function execute(): void
     {
+        $fileDirectoryPath = $this->filesystem->getDirectoryWrite(DirectoryList::PUB);
+        $fileName = 'googleshopping.xml';
         try {
-            $fileDirectoryPath = $this->filesystem->getDirectoryWrite(DirectoryList::PUB);
-            $fileName = 'googleshopping.xml';
-
             $xmldata = $this->xmlFeed->getFeed();
-            $fileDirectoryPath->writeFile($fileName, $xmldata);
+            if (strlen($xmldata) > 500) {
+                $fileDirectoryPath->writeFile($fileName, $xmldata);
+            }            
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage());
         }
