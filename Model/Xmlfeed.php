@@ -62,8 +62,11 @@ class Xmlfeed
     public function getFeedFile(): string
     {
         $fileName = "googleshopping.xml";
-
-        return file_get_contents($fileName); //phpcs:ignore
+        $xml = file_get_contents($fileName); //phpcs:ignore
+        if (strlen($xml) < 500) {
+            $xml = $this->getFeed();
+        }
+        return $xml;
     }
 
     public function getXmlHeader(): string
