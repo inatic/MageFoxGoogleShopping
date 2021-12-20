@@ -103,26 +103,14 @@ class Xmlfeed
 
     private function isValidProduct($product): bool
     {
-        $condition = $this->getCondition($product);
-        if ($product->getAttributeSetId() == '26') {
-            return true;
-        }
         if ($product->getImage() === "no_selection"
             || (string) $product->getImage() === ""
             || $product->getVisibility() === Visibility::VISIBILITY_NOT_VISIBLE
-            || $product->getPriceInfo()->getPrice('regular_price')->getValue() < 10
         ) {
             return false;
         }
         if (empty($product->getData('ean'))) {
-            if ($product->getData('supplier') === 'Axitech'
-                || $condition === 'refurbished'
-                || (string) $product->getAttributeText('refurbishedrating') !== ""
-            ) {
-                return true;
-            } else {
                 return false;
-            }
         }
 
         return true;
@@ -146,11 +134,11 @@ class Xmlfeed
                 true
             ) . 'catalog/product' . $product->getImage()
         );
-        $xml .= $this->createNode(
-            'g:google_product_category',
-            $this->productFeedHelper->getProductValue($product, 'google_product_category'),
-            true
-        );
+        //$xml .= $this->createNode(
+        //    'g:google_product_category',
+        //    $this->productFeedHelper->getProductValue($product, 'google_product_category'),
+        //    true
+        //);
         $xml .= $this->createNode("g:availability", $this->isInStock($product));
         $regularPrice = $product->getPriceInfo()->getPrice('regular_price')->getValue();
         $specialPrice = $product->getPriceInfo()->getPrice('special_price')->getValue();
@@ -174,21 +162,21 @@ class Xmlfeed
                 ).' '.$this->productFeedHelper->getCurrentCurrencySymbol()
             );
         }
-        $xml .= $this->createNode("g:condition", $this->getCondition($product));
+        //$xml .= $this->createNode("g:condition", $this->getCondition($product));
         //Unique identifier Logic
         //EAN and MPN are both unique identifiers, but only check EAN since MPN always exists
         if (!empty($product->getData('ean'))) {
             $xml .= $this->createNode("g:gtin", $product->getData('ean'));
-            $xml .= $this->createNode("g:mpn", $product->getData('mpn'));
-        } elseif ($this->getCondition($product) === 'refurbished') {
-            $xml .= $this->createNode("g:mpn", $product->getData('mpn'));
+        //    $xml .= $this->createNode("g:mpn", $product->getData('mpn'));
+        //} elseif ($this->getCondition($product) === 'refurbished') {
+        //    $xml .= $this->createNode("g:mpn", $product->getData('mpn'));
         } else {
             $xml .= $this->createNode("g:identifier_exists", 'false');
         }
 
         $xml .= $this->createNode("g:id", $product->getId());
-        $xml .= $this->createNode("g:brand", $product->getAttributeText('brand'));
-        $xml .= $this->createNode("g:color", ucfirst($product->getAttributeText('color')));
+        $xml .= $this->createNode("g:brand", $product->getAttributeText('merk'));
+        $xml .= $this->createNode("g:color", ucfirst($product->getAttributeText('kleur')));
         $xml .= $this->createNode("g:product_type", $this->getProductCategories($product), true);
         $xml .= $this->createNode("g:custom_label_0", $this->getProductCategories($product), true);
 
