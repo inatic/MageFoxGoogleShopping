@@ -119,12 +119,14 @@ class Xmlfeed
     public function buildProductXml($product): string
     {
         $storeId = 1;
-        $_description = $this->fixDescription($product->getShortDescription());
-        $xml = $this->createNode("title", $_description, true);
+        
+        $xml = $this->createNode("title", $product->getName(), true);
         $xml .= $this->createNode(
             "link",
             $product->setStoreId($storeId)->getUrlModel()->getUrlInStore($product, ['_escape' => true])
         );
+        //$_description = $this->fixDescription($product->getShortDescription());
+        $_description = $this->fixDescription($product->getDescription());
         $xml .= $this->createNode("description", $_description, true);
         //$xml .= $this->createNode("g:product_type", $this->productFeedHelper->getAttributeSet($product), true);
         $xml .= $this->createNode(
