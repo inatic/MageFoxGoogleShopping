@@ -130,7 +130,7 @@ class Xmlfeed
 
     public function buildProductXml($product): string
     {
-        $storeId = 21;
+        $storeId = 1;
         $_description = $this->fixDescription($product->getShortDescription());
         $xml = $this->createNode("title", $_description, true);
         $xml .= $this->createNode(
