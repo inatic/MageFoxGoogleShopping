@@ -7,6 +7,9 @@ use Magefox\GoogleShopping\Helper\Data;
 use Magefox\GoogleShopping\Helper\Products;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Model\Product\Visibility;
+use Magento\Tax\Api\TaxCalculationInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
 
 class Xmlfeed
 {
@@ -42,12 +45,16 @@ class Xmlfeed
         Data $helper,
         Products $productFeedHelper,
         StoreManagerInterface $storeManager,
-        CollectionFactory $categoryCollection
+        CollectionFactory $categoryCollection,
+        TaxCalculationInterface $taxCalculation,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->helper = $helper;
         $this->productFeedHelper = $productFeedHelper;
         $this->storeManager = $storeManager;
         $this->categoryCollection = $categoryCollection;
+        $this->taxCalculation = $taxCalculation;
+        $this->scopeConfig = $scopeConfig;
     }
 
     public function getFeed(): string
@@ -63,9 +70,10 @@ class Xmlfeed
     {
         $fileName = "googleshopping.xml";
         $xml = file_get_contents($fileName); //phpcs:ignore
-        if (strlen($xml) < 500) {
+        // commented out for testing
+        //if (strlen($xml) < 500) {
             $xml = $this->getFeed();
-        }
+        //}
         return $xml;
     }
 
@@ -119,12 +127,14 @@ class Xmlfeed
     public function buildProductXml($product): string
     {
         $storeId = 1;
-        $_description = $this->fixDescription($product->getShortDescription());
-        $xml = $this->createNode("title", $_description, true);
-        $xml .= $this->createNode(
-            "link",
-            $product->setStoreId($storeId)->getUrlModel()->getUrlInStore($product, ['_escape' => true])
-        );
+
+        $xml = $this->createNode("title", $product->getName(), true);
+        $xml .= $this->createNode("link", $product->getProductUrl());
+        //$xml .= $this->createNode(
+        //    "link",
+        //    $product->setStoreId($storeId)->getUrlModel()->getUrlInStore($product, ['_escape' => true])
+        //);
+        $_description = $this->fixDescription($product->getDescription());
         $xml .= $this->createNode("description", $_description, true);
         //$xml .= $this->createNode("g:product_type", $this->productFeedHelper->getAttributeSet($product), true);
         $xml .= $this->createNode(
@@ -140,8 +150,27 @@ class Xmlfeed
         //    true
         //);
         $xml .= $this->createNode("g:availability", $this->isInStock($product));
-        $regularPrice = $product->getPriceInfo()->getPrice('regular_price')->getValue();
-        $specialPrice = $product->getPriceInfo()->getPrice('special_price')->getValue();
+        // tax calculation
+        if ($taxAttribute = $product->getTaxClassId()) {
+            $productRateId = (int) $taxAttribute;
+        }
+        $rate = $this->taxCalculation->getCalculatedRate($productRateId);
+        if ((int) $this->scopeConfig->getValue('tax/calculation/price_includes_tax', ScopeInterface::SCOPE_STORE) === 1) {
+            // Product price in catalog is including tax.
+            $regularPriceExcludingTax = $product->getPrice('regular_price') / (1 + ($rate / 100));
+            $specialPriceExcludingTax = $product->getPrice('special_price') / (1 + ($rate / 100));
+        } else {
+            // Product price in catalog is excluding tax.
+            $regularPriceExcludingTax = $product->getPrice('regular_price');
+            $specialPriceExcludingTax = $product->getPrice('special_price');
+        }
+        $regularPriceIncludingTax = $regularPriceExcludingTax * (1 + $rate / 100);
+        $specialPriceIncludingTax = $specialPriceExcludingTax * (1 + $rate / 100);
+        //$regularPrice = $product->getPriceInfo()->getPrice('regular_price')->getValue();
+        //$specialPrice = $product->getPriceInfo()->getPrice('special_price')->getValue();
+        $regularPrice = $regularPriceIncludingTax;
+        $specialPrice = $specialPriceIncludingTax;
+
         $xml .= $this->createNode(
             'g:price',
             number_format(
