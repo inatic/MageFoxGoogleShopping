@@ -158,11 +158,11 @@ class Xmlfeed
         if ((int) $this->scopeConfig->getValue('tax/calculation/price_includes_tax', ScopeInterface::SCOPE_STORE) === 1) {
             // Product price in catalog is including tax.
             $regularPriceExcludingTax = $product->getPriceInfo()->getPrice('regular_price')->getValue() / (1 + ($rate / 100));
-            $specialPriceExcludingTax = $product->getPriceInfo()->getPrice('special_price')->getValue() / (1 + ($rate / 100));
+            $specialPriceExcludingTax = $product->getPriceInfo()->getPrice('final_price')->getValue() / (1 + ($rate / 100));
         } else {
             // Product price in catalog is excluding tax.
             $regularPriceExcludingTax = $product->getPriceInfo()->getPrice('regular_price')->getValue();
-            $specialPriceExcludingTax = $product->getPriceInfo()->getPrice('special_price')->getValue();
+            $specialPriceExcludingTax = $product->getPriceInfo()->getPrice('final_price')->getValue();
         }
         $regularPriceIncludingTax = $regularPriceExcludingTax * (1 + $rate / 100);
         $specialPriceIncludingTax = $specialPriceExcludingTax * (1 + $rate / 100);
